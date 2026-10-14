@@ -120,7 +120,7 @@
         </div>
     </div>
     <div id="instructions">
-        <strong>WASD / Setas</strong> Mover &nbsp;|&nbsp; <strong>Mouse</strong> Olhar &nbsp;|&nbsp; <strong>Espaço / Clique</strong> Atacar &nbsp;|&nbsp; <strong>Shift</strong> Correr
+        <strong>WASD / Setas</strong> Mover &nbsp;|&nbsp; <strong>Mouse</strong> Girar &nbsp;|&nbsp; <strong>Espaço / Clique</strong> Atacar &nbsp;|&nbsp; <strong>Shift</strong> Correr
     </div>
     <canvas id="minimap"></canvas>
     <div id="overlay">
@@ -174,100 +174,109 @@
 
         // ========== SCENE ==========
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x6eb5ff);
-        scene.fog = new THREE.Fog(0x6eb5ff, 40, 130);
+        scene.background = new THREE.Color(0x87ceeb);
+        scene.fog = new THREE.FogExp2(0x87ceeb, 0.008);
 
-        const camera = new THREE.PerspectiveCamera(70, innerWidth / innerHeight, 0.1, 300);
+        const camera = new THREE.PerspectiveCamera(65, innerWidth / innerHeight, 0.1, 300);
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(innerWidth, innerHeight);
         renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.1;
         document.body.appendChild(renderer.domElement);
 
-        const ambient = new THREE.AmbientLight(0xffffff, 0.55);
+        const ambient = new THREE.AmbientLight(0xffffff, 0.45);
         scene.add(ambient);
-        const sun = new THREE.DirectionalLight(0xfff5e0, 1.15);
-        sun.position.set(60, 80, 40);
+        const sun = new THREE.DirectionalLight(0xfff8e7, 1.3);
+        sun.position.set(70, 100, 50);
         sun.castShadow = true;
         sun.shadow.mapSize.set(2048, 2048);
         sun.shadow.camera.near = 1;
-        sun.shadow.camera.far = 220;
-        sun.shadow.camera.left = sun.shadow.camera.bottom = -90;
-        sun.shadow.camera.right = sun.shadow.camera.top = 90;
+        sun.shadow.camera.far = 250;
+        sun.shadow.camera.left = sun.shadow.camera.bottom = -100;
+        sun.shadow.camera.right = sun.shadow.camera.top = 100;
+        sun.shadow.bias = -0.0005;
         scene.add(sun);
 
-        // Ground
-        const groundGeo = new THREE.PlaneGeometry(220, 220, 40, 40);
-        const groundMat = new THREE.MeshLambertMaterial({ color: 0x3a7d32 });
+        // Ground with better look
+        const groundGeo = new THREE.PlaneGeometry(240, 240, 60, 60);
+        const groundMat = new THREE.MeshStandardMaterial({ 
+            color: 0x4a8c3a, 
+            roughness: 0.9, 
+            metalness: 0.05 
+        });
         const ground = new THREE.Mesh(groundGeo, groundMat);
         ground.rotation.x = -Math.PI / 2;
         ground.receiveShadow = true;
-        const pos = ground.geometry.attributes.position;
-        for (let i = 0; i < pos.count; i++) {
-            const x = pos.getX(i), z = pos.getZ(i);
-            pos.setY(i, Math.sin(x * 0.1) * Math.cos(z * 0.1) * 0.4);
+        const posAttr = ground.geometry.attributes.position;
+        for (let i = 0; i < posAttr.count; i++) {
+            const x = posAttr.getX(i), z = posAttr.getZ(i);
+            posAttr.setY(i, Math.sin(x * 0.08) * Math.cos(z * 0.08) * 0.6 + Math.sin(x * 0.3) * 0.15);
         }
         ground.geometry.computeVertexNormals();
         scene.add(ground);
 
-        // ========== PLAYER (more detailed) ==========
-        const player = new THREE.Group();
-        const bodyMat = new THREE.MeshLambertMaterial({ color: 0x111111 });
-        const skinMat = new THREE.MeshLambertMaterial({ color: 0xf5c6a5 });
-        const hatMat = new THREE.MeshLambertMaterial({ color: 0x3d7edb });
-        const jeanMat = new THREE.MeshLambertMaterial({ color: 0x1c2a4a });
-        const shoeMat = new THREE.MeshLambertMaterial({ color: 0xf5f5f5 });
+        // Rocks for detail
+        function createRock(x, z) {
+            const rock = new THREE.Mesh(
+                new THREE.DodecahedronGeometry(0.4 + Math.random() * 0.5, 0),
+                new THREE.MeshStandardMaterial({ color: 0x666666, roughness: 0.8 })
+            );
+            rock.position.set(x, 0.3, z);
+            rock.rotation.set(Math.random(), Math.random(), Math.random());
+            rock.castShadow = true;
+            rock.receiveShadow = true;
+            scene.add(rock);
+        }
+        for (let i = 0; i < 30; i++) {
+            const x = (Math.random() - 0.5) * 180;
+            const z = (Math.random() - 0.5) * 180;
+            if (Math.hypot(x, z) > 6) createRock(x, z);
+        }
 
-        // Body
+        // ========== PLAYER ==========
+        const player = new THREE.Group();
+        const bodyMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.7 });
+        const skinMat = new THREE.MeshStandardMaterial({ color: 0xf5c6a5, roughness: 0.6 });
+        const hatMat = new THREE.MeshStandardMaterial({ color: 0x3d7edb, roughness: 0.5 });
+        const jeanMat = new THREE.MeshStandardMaterial({ color: 0x1c2a4a, roughness: 0.8 });
+        const shoeMat = new THREE.MeshStandardMaterial({ color: 0xf0f0f0, roughness: 0.4 });
+
         const body = new THREE.Mesh(new THREE.BoxGeometry(0.65, 1.05, 0.32), bodyMat);
         body.position.y = 1.12; body.castShadow = true; player.add(body);
-
-        // Head
         const head = new THREE.Mesh(new THREE.SphereGeometry(0.3, 16, 12), skinMat);
         head.position.y = 1.95; head.castShadow = true; player.add(head);
-
-        // Eyes
         const eyeMat = new THREE.MeshBasicMaterial({ color: 0x111111 });
         const leftEye = new THREE.Mesh(new THREE.SphereGeometry(0.045, 8, 8), eyeMat);
         leftEye.position.set(-0.1, 1.98, 0.26); player.add(leftEye);
         const rightEye = leftEye.clone(); rightEye.position.x = 0.1; player.add(rightEye);
-
-        // Mustache
         const mustache = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.06, 0.07), bodyMat);
         mustache.position.set(0, 1.82, 0.27); player.add(mustache);
-
-        // Hat
         const hat = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.46, 0.2, 12), hatMat);
         hat.position.y = 2.28; hat.castShadow = true; player.add(hat);
         const brim = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.55, 0.035, 12), hatMat);
         brim.position.y = 2.17; player.add(brim);
-
-        // Legs + shoes
         const leftLeg = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.7, 0.2), jeanMat);
         leftLeg.position.set(-0.16, 0.35, 0); leftLeg.castShadow = true; player.add(leftLeg);
         const rightLeg = leftLeg.clone(); rightLeg.position.x = 0.16; player.add(rightLeg);
         const leftShoe = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.12, 0.32), shoeMat);
         leftShoe.position.set(-0.16, 0.06, 0.04); player.add(leftShoe);
         const rightShoe = leftShoe.clone(); rightShoe.position.x = 0.16; player.add(rightShoe);
-
-        // Arms
         const leftArm = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.65, 0.16), bodyMat);
         leftArm.position.set(-0.48, 1.2, 0); leftArm.castShadow = true; player.add(leftArm);
         const rightArm = leftArm.clone(); rightArm.position.x = 0.48; player.add(rightArm);
-
-        // Weapon (guitar stick)
-        const weapon = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 1.15, 6), new THREE.MeshLambertMaterial({ color: 0x8B4513 }));
+        const weapon = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 1.15, 6), new THREE.MeshStandardMaterial({ color: 0x8B4513, roughness: 0.7 }));
         weapon.position.set(0.55, 0.95, 0.25);
         weapon.rotation.z = -0.75;
         player.add(weapon);
-
         player.position.set(0, 0, 0);
         scene.add(player);
 
         // ========== CONTROLS ==========
         const controls = new PointerLockControls(camera, document.body);
-        scene.add(controls.getObject());
+        // We will not use controls for camera position, only for pointer lock and mouse delta
 
         // ========== GAME STATE ==========
         let health = 100;
@@ -281,8 +290,10 @@
         let speedBoost = 1;
         let speedBoostTimer = 0;
         const keys = {};
-        const baseSpeed = 0.11;
-        const runMultiplier = 1.65;
+        const baseSpeed = 8.0; // units per second
+        const runMultiplier = 1.6;
+        let velocity = new THREE.Vector3();
+        let playerYaw = 0;
 
         const collectibles = [];
         const enemies = [];
@@ -290,6 +301,7 @@
         const speedBoosts = [];
         const trees = [];
         const particles = [];
+        const treeColliders = [];
 
         // ========== HELPERS ==========
         function updateHUD() {
@@ -325,7 +337,7 @@
         // ========== SPAWNERS ==========
         function spawnCollectible() {
             const geo = new THREE.TorusGeometry(0.22, 0.07, 8, 16);
-            const mat = new THREE.MeshLambertMaterial({ color: 0xffd700, emissive: 0xaa8800, emissiveIntensity: 0.45 });
+            const mat = new THREE.MeshStandardMaterial({ color: 0xffd700, emissive: 0xaa8800, emissiveIntensity: 0.5, roughness: 0.3, metalness: 0.6 });
             const item = new THREE.Mesh(geo, mat);
             item.position.set((Math.random()-0.5)*170, 0.55, (Math.random()-0.5)*170);
             item.castShadow = true;
@@ -335,7 +347,7 @@
 
         function spawnHealthPack() {
             const geo = new THREE.BoxGeometry(0.35, 0.35, 0.35);
-            const mat = new THREE.MeshLambertMaterial({ color: 0x2ecc71, emissive: 0x1abc9c, emissiveIntensity: 0.35 });
+            const mat = new THREE.MeshStandardMaterial({ color: 0x2ecc71, emissive: 0x1abc9c, emissiveIntensity: 0.4, roughness: 0.4 });
             const pack = new THREE.Mesh(geo, mat);
             pack.position.set((Math.random()-0.5)*160, 0.35, (Math.random()-0.5)*160);
             pack.castShadow = true;
@@ -345,7 +357,7 @@
 
         function spawnSpeedBoost() {
             const geo = new THREE.OctahedronGeometry(0.28);
-            const mat = new THREE.MeshLambertMaterial({ color: 0x00d4ff, emissive: 0x0099cc, emissiveIntensity: 0.4 });
+            const mat = new THREE.MeshStandardMaterial({ color: 0x00d4ff, emissive: 0x0099cc, emissiveIntensity: 0.5, roughness: 0.2, metalness: 0.3 });
             const boost = new THREE.Mesh(geo, mat);
             boost.position.set((Math.random()-0.5)*160, 0.5, (Math.random()-0.5)*160);
             boost.castShadow = true;
@@ -355,23 +367,24 @@
 
         function createTree(x, z) {
             const g = new THREE.Group();
-            const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.32, 2.6, 6), new THREE.MeshLambertMaterial({ color: 0x6b4423 }));
+            const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.32, 2.6, 6), new THREE.MeshStandardMaterial({ color: 0x6b4423, roughness: 0.9 }));
             trunk.position.y = 1.3; trunk.castShadow = true; g.add(trunk);
-            const leaves = new THREE.Mesh(new THREE.ConeGeometry(1.5, 3.0, 7), new THREE.MeshLambertMaterial({ color: 0x1e7a2e }));
+            const leaves = new THREE.Mesh(new THREE.ConeGeometry(1.5, 3.0, 7), new THREE.MeshStandardMaterial({ color: 0x2d8a3e, roughness: 0.8 }));
             leaves.position.y = 3.4; leaves.castShadow = true; g.add(leaves);
             g.position.set(x, 0, z);
             scene.add(g);
             trees.push(g);
+            treeColliders.push({ x, z, radius: 0.8 });
         }
 
         function spawnEnemy(type = 'normal') {
-            let size = 0.9, color = 0xe74c3c, speed = 0.024, hp = 2, damage = 12;
+            let size = 0.9, color = 0xe74c3c, speed = 3.5, hp = 2, damage = 12;
             if (type === 'fast') {
-                size = 0.65; color = 0xff6b00; speed = 0.042; hp = 1; damage = 7;
+                size = 0.65; color = 0xff6b00; speed = 6.0; hp = 1; damage = 7;
             } else if (type === 'tank') {
-                size = 1.3; color = 0x8b0000; speed = 0.016; hp = 4; damage = 20;
+                size = 1.3; color = 0x8b0000; speed = 2.2; hp = 4; damage = 20;
             }
-            const mesh = new THREE.Mesh(new THREE.BoxGeometry(size, size, size), new THREE.MeshLambertMaterial({ color }));
+            const mesh = new THREE.Mesh(new THREE.BoxGeometry(size, size, size), new THREE.MeshStandardMaterial({ color, roughness: 0.6 }));
             mesh.position.set((Math.random()-0.5)*180, size/2, (Math.random()-0.5)*180);
             mesh.castShadow = true;
             scene.add(mesh);
@@ -407,6 +420,12 @@
 
         controls.addEventListener('lock', () => { document.getElementById('instructions').style.opacity = '0.6'; });
         controls.addEventListener('unlock', () => { document.getElementById('instructions').style.opacity = '1'; });
+
+        // Mouse look for player rotation
+        document.addEventListener('mousemove', (e) => {
+            if (!controls.isLocked || !gameActive) return;
+            playerYaw -= e.movementX * 0.0025;
+        });
 
         function doAttack() {
             if (attackCooldown > 0 || !gameActive) return;
@@ -466,29 +485,55 @@
             const dt = Math.min(clock.getDelta(), 0.05);
 
             if (gameActive && controls.isLocked && health > 0 && score < goalScore) {
-                const dir = new THREE.Vector3();
-                if (keys['KeyW'] || keys['ArrowUp']) dir.z -= 1;
-                if (keys['KeyS'] || keys['ArrowDown']) dir.z += 1;
-                if (keys['KeyA'] || keys['ArrowLeft']) dir.x -= 1;
-                if (keys['KeyD'] || keys['ArrowRight']) dir.x += 1;
+                // Movement relative to player facing (yaw)
+                const moveDir = new THREE.Vector3();
+                if (keys['KeyW'] || keys['ArrowUp']) moveDir.z -= 1;
+                if (keys['KeyS'] || keys['ArrowDown']) moveDir.z += 1;
+                if (keys['KeyA'] || keys['ArrowLeft']) moveDir.x -= 1;
+                if (keys['KeyD'] || keys['ArrowRight']) moveDir.x += 1;
 
-                let speed = baseSpeed * speedBoost;
-                if (keys['ShiftLeft'] || keys['ShiftRight']) speed *= runMultiplier;
+                let currentSpeed = baseSpeed * speedBoost;
+                if (keys['ShiftLeft'] || keys['ShiftRight']) currentSpeed *= runMultiplier;
 
-                if (dir.length() > 0) {
-                    dir.normalize();
-                    const camDir = new THREE.Vector3();
-                    camera.getWorldDirection(camDir);
-                    camDir.y = 0; camDir.normalize();
-                    const camRight = new THREE.Vector3().crossVectors(camDir, new THREE.Vector3(0,1,0)).normalize();
-                    const move = new THREE.Vector3();
-                    move.addScaledVector(camDir, -dir.z);
-                    move.addScaledVector(camRight, dir.x);
-                    move.normalize();
-                    player.position.addScaledVector(move, speed);
-                    player.rotation.y = Math.atan2(move.x, move.z);
+                if (moveDir.length() > 0) {
+                    moveDir.normalize();
+                    // Apply yaw rotation to movement
+                    const cos = Math.cos(playerYaw);
+                    const sin = Math.sin(playerYaw);
+                    const worldX = moveDir.x * cos - moveDir.z * sin;
+                    const worldZ = moveDir.x * sin + moveDir.z * cos;
+                    velocity.set(worldX * currentSpeed, 0, worldZ * currentSpeed);
+                } else {
+                    velocity.multiplyScalar(0.85); // friction
+                }
 
-                    walkTime += dt * 9;
+                // Apply movement
+                const newPos = player.position.clone().add(velocity.clone().multiplyScalar(dt));
+
+                // Simple tree collision
+                let blocked = false;
+                for (const t of treeColliders) {
+                    const dx = newPos.x - t.x;
+                    const dz = newPos.z - t.z;
+                    if (dx*dx + dz*dz < t.radius * t.radius) {
+                        blocked = true;
+                        break;
+                    }
+                }
+                if (!blocked) {
+                    player.position.copy(newPos);
+                } else {
+                    velocity.multiplyScalar(0.3);
+                }
+
+                player.position.x = Math.max(-110, Math.min(110, player.position.x));
+                player.position.z = Math.max(-110, Math.min(110, player.position.z));
+                player.position.y = 0;
+                player.rotation.y = playerYaw;
+
+                // Walk animation
+                if (velocity.length() > 1) {
+                    walkTime += dt * 10;
                     leftLeg.rotation.x = Math.sin(walkTime) * 0.45;
                     rightLeg.rotation.x = Math.sin(walkTime + Math.PI) * 0.45;
                     leftArm.rotation.x = Math.sin(walkTime + Math.PI) * 0.35;
@@ -499,14 +544,12 @@
                     body.position.y = 1.12;
                 }
 
-                player.position.x = Math.max(-100, Math.min(100, player.position.x));
-                player.position.z = Math.max(-100, Math.min(100, player.position.z));
-                player.position.y = 0;
-
-                const ideal = new THREE.Vector3(0, 2.7, 6.2).applyQuaternion(player.quaternion);
-                const targetPos = player.position.clone().add(ideal);
-                camera.position.lerp(targetPos, 0.13);
-                camera.lookAt(player.position.clone().add(new THREE.Vector3(0, 1.55, 0)));
+                // Camera follow behind player
+                const camOffset = new THREE.Vector3(0, 2.8, 7.0);
+                camOffset.applyAxisAngle(new THREE.Vector3(0, 1, 0), playerYaw);
+                const idealCam = player.position.clone().add(camOffset);
+                camera.position.lerp(idealCam, 0.15);
+                camera.lookAt(player.position.clone().add(new THREE.Vector3(0, 1.6, 0)));
 
                 if (attackCooldown > 0) attackCooldown -= dt;
                 if (speedBoostTimer > 0) {
@@ -567,15 +610,15 @@
                     const toPlayer = player.position.clone().sub(e.mesh.position);
                     toPlayer.y = 0;
                     const dist = toPlayer.length();
-                    if (dist > 0.5 && dist < 45) {
+                    if (dist > 0.5 && dist < 50) {
                         toPlayer.normalize();
-                        e.mesh.position.addScaledVector(toPlayer, e.speed);
+                        e.mesh.position.addScaledVector(toPlayer, e.speed * dt);
                         e.mesh.lookAt(player.position.x, e.mesh.position.y, player.position.z);
                     }
-                    if (Math.abs(e.mesh.position.x) > 105) e.mesh.position.x *= 0.98;
-                    if (Math.abs(e.mesh.position.z) > 105) e.mesh.position.z *= 0.98;
+                    if (Math.abs(e.mesh.position.x) > 110) e.mesh.position.x *= 0.98;
+                    if (Math.abs(e.mesh.position.z) > 110) e.mesh.position.z *= 0.98;
 
-                    if (dist < 1.15) {
+                    if (dist < 1.2) {
                         health -= e.damage * dt * 2.5;
                         flashDamage();
                         sfx.damage();
