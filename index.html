@@ -197,9 +197,23 @@
         sun.shadow.bias = -0.0005;
         scene.add(sun);
 
-        // Ground
+        // Ground with free grass texture (from Three.js examples / OpenGameArt)
+        const textureLoader = new THREE.TextureLoader();
+        const grassTexture = textureLoader.load(
+            'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/terrain/grasslight-big.jpg'
+        );
+        grassTexture.wrapS = grassTexture.wrapT = THREE.RepeatWrapping;
+        grassTexture.repeat.set(35, 35);
+        grassTexture.colorSpace = THREE.SRGBColorSpace;
+        grassTexture.anisotropy = 8;
+
         const groundGeo = new THREE.PlaneGeometry(240, 240, 60, 60);
-        const groundMat = new THREE.MeshStandardMaterial({ color: 0x4a8c3a, roughness: 0.9, metalness: 0.05 });
+        const groundMat = new THREE.MeshStandardMaterial({ 
+            map: grassTexture,
+            color: 0x8bc34a,
+            roughness: 0.82,
+            metalness: 0.01
+        });
         const ground = new THREE.Mesh(groundGeo, groundMat);
         ground.rotation.x = -Math.PI / 2;
         ground.receiveShadow = true;
