@@ -579,7 +579,7 @@
 
         document.addEventListener('mousemove', (e) => {
             if (!controls.isLocked || !gameActive) return;
-            playerYaw -= e.movementX * 0.003;
+            playerYaw -= e.movementX * 0.004; // right mouse turns right
         });
 
         function doAttack() {
@@ -652,13 +652,15 @@
 
                 if (moveDir.lengthSq() > 0) {
                     moveDir.normalize();
+                    // Rotate relative to player facing (yaw)
                     const cos = Math.cos(playerYaw);
                     const sin = Math.sin(playerYaw);
-                    const worldX = moveDir.x * cos - moveDir.z * sin;
-                    const worldZ = moveDir.x * sin + moveDir.z * cos;
+                    // Forward is -Z when yaw=0
+                    const worldX = moveDir.x * cos + moveDir.z * sin;
+                    const worldZ = -moveDir.x * sin + moveDir.z * cos;
                     velocity.set(worldX * currentSpeed, 0, worldZ * currentSpeed);
                 } else {
-                    velocity.multiplyScalar(Math.max(0, 1 - 8 * dt)); // smoother friction
+                    velocity.multiplyScalar(Math.max(0, 1 - 10 * dt));
                 }
 
                 // Proposed position
@@ -702,15 +704,18 @@
                     body.position.y = 1.12;
                 }
 
-                // Camera
+                // Camera (behind and slightly above)
+                const camDistance = 7.2;
+                const camHeight = 3.2;
                 const camOffset = new THREE.Vector3(
-                    Math.sin(playerYaw) * 6.8,
-                    2.9,
-                    Math.cos(playerYaw) * 6.8
+                    Math.sin(playerYaw) * camDistance,
+                    camHeight,
+                    Math.cos(playerYaw) * camDistance
                 );
                 const idealCam = player.position.clone().add(camOffset);
-                camera.position.lerp(idealCam, 0.18);
-                camera.lookAt(player.position.clone().add(new THREE.Vector3(0, 1.55, 0)));
+                camera.position.lerp(idealCam, 0.22);
+                const lookTarget = player.position.clone().add(new THREE.Vector3(0, 1.6, 0));
+                camera.lookAt(lookTarget);
 
                 if (attackCooldown > 0) attackCooldown -= dt;
                 if (speedBoostTimer > 0) {
