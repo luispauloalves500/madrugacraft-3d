@@ -1,32 +1,42 @@
-# MadrugaCraft 3D
+# MadrugaCraft 3D Avançado
 
-Um fangame simples em **Three.js** inspirado no clássico *Madrugacraft* (2004) do CyberGamba.
+Fangame 3D em **Three.js** inspirado no clássico *Madrugacraft* (CyberGamba, 2004).
 
-Controle o Seu Madruga pela floresta e colete os pedaços do violão!
+Controle o Seu Madruga pela floresta, colete os pedaços do violão e lute contra os monstros!
 
-## Como jogar
+## Recursos
 
-1. Abra o `index.html` no navegador (ou hospede no GitHub Pages).
-2. Clique na tela para ativar os controles.
-3. Use **WASD** ou **Setas** para mover.
-4. Mova o mouse para olhar ao redor.
-5. Colete 5 violões dourados para ganhar.
-
-## Hospedar no GitHub Pages
-
-1. Crie um repositório (ou use este).
-2. Faça push dos arquivos.
-3. Vá em **Settings → Pages** e selecione a branch `main` / root.
-4. Acesse `https://seu-usuario.github.io/nome-do-repo/`
+- Modelo do Seu Madruga (chapéu azul, camisa preta, bigode)
+- Terceira pessoa com câmera que segue o personagem
+- Animação de caminhada
+- Sistema de vida e barra de saúde
+- Inimigos que perseguem (normais e rápidos)
+- Combate melee (Espaço ou clique)
+- Coletáveis de violão + packs de vida
+- Minimap
+- Efeitos de partículas
+- Sons procedurais
+- Ondas de dificuldade
 
 ## Controles
 
-- **WASD / Setas**: Movimento
-- **Mouse**: Câmera (após clicar na tela)
-- **Clique**: Ativar/desativar Pointer Lock
+| Ação | Tecla |
+|------|-------|
+| Mover | WASD ou Setas |
+| Correr | Shift |
+| Atacar | Espaço ou Clique esquerdo |
+| Olhar | Mouse (após clicar na tela) |
 
-Feito com ❤️ em Three.js.
+## Como jogar localmente
+
+Abra o `index.html` em qualquer navegador moderno.
+
+## GitHub Pages
+
+1. Vá em **Settings → Pages**
+2. Source: branch `main` / root
+3. Acesse: `https://luispauloalves500.github.io/madrugacraft-3d/`
 
 ---
 
-*Este é um projeto fã não-oficial. Personagens de Chaves são propriedade de seus respectivos donos.*
+*Projeto fã não-oficial. Personagens de Chaves são propriedade de seus respectivos donos.*
