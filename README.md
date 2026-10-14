@@ -6,16 +6,21 @@ Controle o Seu Madruga pela floresta, colete os pedaços do violão e lute contr
 
 ## Recursos
 
-- Modelo do Seu Madruga (chapéu azul, camisa preta, bigode)
+- Modelo mais detalhado do Seu Madruga (olhos, tênis, bigode, chapéu azul)
 - Terceira pessoa com câmera que segue o personagem
 - Animação de caminhada
 - Sistema de vida e barra de saúde
-- Inimigos que perseguem (normais e rápidos)
+- **3 tipos de inimigos**:
+  - Normal (vermelho)
+  - Rápido (laranja)
+  - Tank (vermelho escuro, mais forte e lento)
 - Combate melee (Espaço ou clique)
-- Coletáveis de violão + packs de vida
-- Minimap
+- Coletáveis de violão
+- Packs de vida (verde)
+- **Power-up de velocidade** (azul, dura 6 segundos)
+- Minimap (mostra itens, boosts e inimigos)
 - Efeitos de partículas
-- Sons procedurais
+- Sons procedurais melhorados
 - Ondas de dificuldade
 
 ## Controles
