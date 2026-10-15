@@ -117,7 +117,7 @@
         </div>
     </div>
     <div id="instructions">
-        <strong>WASD / Setas</strong> Mover &nbsp;|&nbsp; <strong>Mouse</strong> Girar &nbsp;|&nbsp; <strong>Espaço / Clique</strong> Atacar &nbsp;|&nbsp; <strong>Shift</strong> Correr
+        <strong>WASD / Setas</strong> Mover &nbsp;|&nbsp; <strong>Mouse</strong> Girar &nbsp;|&nbsp; <strong>Clique</strong> Atacar &nbsp;|&nbsp; <strong>Espaço</strong> Pular &nbsp;|&nbsp; <strong>Shift</strong> Correr
     </div>
     <canvas id="minimap"></canvas>
     <div id="overlay">
@@ -214,6 +214,7 @@
         scene.add(ambient);
         const sun = new THREE.DirectionalLight(0xfff8e7, 1.3);
         sun.position.set(70, 100, 50);
+        let dayTime = 0;
         sun.castShadow = true;
         sun.shadow.mapSize.set(1024, 1024);
         sun.shadow.camera.near = 1;
@@ -329,6 +330,10 @@
         const runMultiplier = 1.65;
         let velocity = new THREE.Vector3();
         let playerYaw = 0;
+        let verticalVelocity = 0;
+        let isGrounded = true;
+        const gravity = -25;
+        const jumpForce = 8.5;
 
         const collectibles = [];
         const enemies = [];
@@ -610,7 +615,13 @@
             }
         }
         document.addEventListener('mousedown', () => { if (controls.isLocked) doAttack(); });
-        document.addEventListener('keydown', e => { if (e.code === 'Space' && controls.isLocked) doAttack(); });
+        document.addEventListener('keydown', e => {
+            if (e.code === 'Space' && controls.isLocked && isGrounded) {
+                verticalVelocity = jumpForce;
+                isGrounded = false;
+                sfx.boost(); // reuse for jump feel
+            }
+        });
 
         // ========== MINIMAP ==========
         const minimap = document.getElementById('minimap');
@@ -691,9 +702,19 @@
                 player.position.x = Math.max(-110, Math.min(110, newX));
                 player.position.z = Math.max(-110, Math.min(110, newZ));
 
-                // Follow ground height
+                // Jump / gravity
                 const groundY = getGroundHeight(player.position.x, player.position.z);
-                player.position.y = groundY;
+                if (!isGrounded) {
+                    verticalVelocity += gravity * dt;
+                    player.position.y += verticalVelocity * dt;
+                    if (player.position.y <= groundY) {
+                        player.position.y = groundY;
+                        verticalVelocity = 0;
+                        isGrounded = true;
+                    }
+                } else {
+                    player.position.y = groundY;
+                }
 
                 player.rotation.y = playerYaw;
 
@@ -793,6 +814,11 @@
                     const dist = toPlayer.length();
                     if (dist > 0.6 && dist < 55) {
                         toPlayer.normalize();
+                        // Occasional strafe
+                        if (Math.sin(Date.now() * 0.002 + e.mesh.id) > 0.6) {
+                            const strafe = new THREE.Vector3(-toPlayer.z, 0, toPlayer.x).multiplyScalar(0.4);
+                            toPlayer.add(strafe).normalize();
+                        }
                         e.mesh.position.addScaledVector(toPlayer, e.speed * dt);
                         e.mesh.lookAt(player.position.x, e.mesh.position.y, player.position.z);
                     }
@@ -832,6 +858,16 @@
                     particles.splice(i, 1);
                 }
             }
+
+            // Day/night cycle
+            dayTime += dt * 0.08;
+            const sunAngle = dayTime % (Math.PI * 2);
+            sun.position.set(Math.cos(sunAngle) * 80, Math.sin(sunAngle) * 60 + 40, Math.sin(sunAngle) * 40);
+            const intensity = Math.max(0.3, Math.sin(sunAngle) * 0.8 + 0.6);
+            sun.intensity = intensity * 1.4;
+            ambient.intensity = 0.25 + intensity * 0.35;
+            scene.background.setHSL(0.6, 0.5, 0.4 + intensity * 0.3);
+            scene.fog.color.copy(scene.background);
 
             drawMinimap();
             renderer.render(scene, camera);
