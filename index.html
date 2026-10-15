@@ -252,6 +252,8 @@
         scene.add(ground);
 
         // Rocks
+        const rockColliders = [];
+
         function createRock(x, z, scale = 1) {
             const rockGeo = new THREE.DodecahedronGeometry(0.35 + Math.random() * 0.7, 0);
             const rockMat = new THREE.MeshStandardMaterial({ 
@@ -266,6 +268,7 @@
             rock.castShadow = true;
             rock.receiveShadow = true;
             scene.add(rock);
+            rockColliders.push({ x, z, radius: 0.55 * scale });
         }
         
 
@@ -667,19 +670,23 @@
                 let newX = player.position.x + velocity.x * dt;
                 let newZ = player.position.z + velocity.z * dt;
 
-                // Sliding collision with trees
-                for (const t of treeColliders) {
-                    const dx = newX - t.x;
-                    const dz = newZ - t.z;
-                    const distSq = dx * dx + dz * dz;
-                    const minDist = t.radius + 0.45;
-                    if (distSq < minDist * minDist) {
-                        const dist = Math.sqrt(distSq) || 0.001;
-                        const push = (minDist - dist) / dist;
-                        newX += dx * push * 0.9;
-                        newZ += dz * push * 0.9;
+                // Sliding collision with trees and rocks
+                function pushOut(colliders, minAdd) {
+                    for (const t of colliders) {
+                        const dx = newX - t.x;
+                        const dz = newZ - t.z;
+                        const distSq = dx * dx + dz * dz;
+                        const minDist = t.radius + minAdd;
+                        if (distSq < minDist * minDist) {
+                            const dist = Math.sqrt(distSq) || 0.001;
+                            const push = (minDist - dist) / dist;
+                            newX += dx * push * 0.85;
+                            newZ += dz * push * 0.85;
+                        }
                     }
                 }
+                pushOut(treeColliders, 0.45);
+                pushOut(rockColliders, 0.35);
 
                 player.position.x = Math.max(-110, Math.min(110, newX));
                 player.position.z = Math.max(-110, Math.min(110, newZ));
@@ -713,8 +720,8 @@
                     Math.cos(playerYaw) * camDistance
                 );
                 const idealCam = player.position.clone().add(camOffset);
-                camera.position.lerp(idealCam, 0.22);
-                const lookTarget = player.position.clone().add(new THREE.Vector3(0, 1.6, 0));
+                camera.position.lerp(idealCam, 0.25);
+                const lookTarget = player.position.clone().add(new THREE.Vector3(0, 1.65, 0));
                 camera.lookAt(lookTarget);
 
                 if (attackCooldown > 0) attackCooldown -= dt;
@@ -734,7 +741,15 @@
                         collectibles.splice(i, 1);
                         score++;
                         sfx.collect();
-                        spawnParticle(item.position, 0xffd700, 12);
+                        spawnParticle(item.position, 0xffd700, 14);
+                        const popup = document.createElement('div');
+                        popup.textContent = '+1';
+                        popup.style.cssText = 'position:absolute;color:#ffd700;font-weight:bold;font-size:22px;pointer-events:none;z-index:50;text-shadow:2px 2px 0 #000;';
+                        const rect = renderer.domElement.getBoundingClientRect();
+                        popup.style.left = (rect.left + rect.width/2 + (Math.random()-0.5)*80) + 'px';
+                        popup.style.top = (rect.top + rect.height/2 - 40) + 'px';
+                        document.body.appendChild(popup);
+                        setTimeout(() => popup.remove(), 700);
                         if (collectibles.length < 6) spawnCollectible();
                         updateHUD();
                         if (score >= goalScore) winGame();
@@ -787,8 +802,11 @@
                         health -= e.damage * dt * 2.8;
                         flashDamage();
                         sfx.damage();
+                        e.mesh.scale.setScalar(1.15);
                         updateHUD();
                         if (health <= 0) loseGame();
+                    } else {
+                        e.mesh.scale.setScalar(1);
                     }
                 });
 
