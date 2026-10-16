@@ -1,0 +1,14 @@
+MADRUGACRAFT 3D v0.4 - INSTRUCOES
+
+Extraia o ZIP inteiro em uma pasta no Windows.
+Abra INICIAR-JOGO.bat ou index.html no Chrome/Edge.
+Escolha a qualidade grafica, clique em Comecar aventura e mova o mouse.
+NECESSITA de internet para carregar Three.js pelo CDN e WebGL ativado.
+
+WASD = andar | Shift = correr | Espaco = pular
+Mouse = camera | Clique/J = atacar | E = especial | Q = esquiva
+1/2/3 = armas (desbloqueadas nas missoes) | Esc = pausar
+
+Novidades: personagem articulado, ataques com arcos, templo, duas fases do chefe.
+Este e um jogo de navegador. O arquivo BAT NAO e um executavel nativo.
+Progresso nao e salvo. Testes de logica passaram; teste grafico completo pendente.
