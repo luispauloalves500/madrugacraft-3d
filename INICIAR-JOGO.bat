@@ -1,5 +1,6 @@
 @echo off
 setlocal
 cd /d "%~dp0"
-start "" "%~dp0index.html"
+powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\serve.ps1"
+if errorlevel 1 pause
 endlocal

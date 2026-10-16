@@ -1,60 +1,103 @@
-# MadrugaCraft 3D — v0.4 | Aventura RPG em Three.js
+# MadrugaCraft 3D — v0.6
 
-Evolução incremental da v0.3: o projeto **não foi refeito**. É um fangame **não oficial**, inspirado na temática de MadrugaCraft, não uma recriação fiel ou port oficial.
+Fangame **não oficial** em Three.js, evoluído incrementalmente sobre a versão v0.5.
+O jogo continua sendo uma aventura 3D de navegador: três capítulos, 10 peças do violão,
+armas desbloqueáveis, evolução por XP, esquiva, ruínas e guardião com duas fases.
 
-## Instalação e execução no Windows
+## Abrir no Windows sem instalar dependências
 
-1. Extraia **todos** os arquivos do ZIP jogável na mesma pasta.
-2. Abra `INICIAR-JOGO.bat` ou `index.html` no Chrome ou Edge.
-3. Mantenha conexão com a internet: a biblioteca **Three.js 0.160.0** é importada do CDN jsDelivr; não está incluída no ZIP.
-4. Ative aceleração gráfica/WebGL no navegador, selecione qualidade mínima/média/alta e clique em **Começar aventura**.
-5. Pressione **Esc** para pausar/liberar o mouse; clique em **Continuar aventura** para retomar.
+Extraia **todo** o ZIP e execute `INICIAR-JOGO.bat`. O iniciador abre
+`http://127.0.0.1:8765/` (ou uma das portas alternativas) no navegador por meio de um
+servidor PowerShell **local**. Não feche a janela do iniciador enquanto joga.
+É necessária internet apenas para baixar o módulo Three.js 0.160.0 (CDN jsDelivr).
+Se o motor 3D não carregar, o próprio menu mostra o erro após alguns segundos.
+**Não abra `index.html` com `file://`**: módulos ES importados de arquivos locais
+geralmente são bloqueados pela política de segurança do navegador.
 
-O jogo roda **no navegador**, inclusive no Windows, **não é um EXE nativo** e não precisa de instalador. Se o motor 3D não carregar, aparecerá uma mensagem explicativa. Não há salvamento de progresso nesta versão.
+### Desenvolver
+
+Com Node.js 18+ (não é necessário para jogar):
+
+```bash
+npm run dev
+npm test
+npm run check
+```
+
+Acesse `http://127.0.0.1:8765/`. Não há dependências de npm e nem build.
+
+## GitHub Pages
+
+1. Envie **o conteúdo da pasta do projeto** para a **raiz** do repositório,
+   preservando `index.html`, `src/`, `styles/`, `scripts/` e `.github/`.
+2. Em **Settings → Pages → Build and deployment → Source**, escolha **GitHub Actions**.
+3. Faça push na branch **main**. O workflow executa `npm test` e publica o projeto.
+4. Abra a URL do GitHub Pages do repositório (pode estar em subpasta
+   `https://usuario.github.io/nome-do-repo/`). Imports e recursos usam
+   **caminhos relativos**, compatíveis com projetos hospedados em subpastas.
+
+Se preferir publicar pela opção **Deploy from a branch**, a raiz do projeto
+também funciona: basta selecionar `main` / `/(root)` nas configurações do Pages.
+**Não configure as duas formas de publicação ao mesmo tempo.**
+
+## Estrutura de pastas v0.6
+
+```text
+index.html                      Página inicial + mapa de imports Three.js
+styles/main.css                 Menus, HUD e responsividade
+src/main.js                     Inicialização, missões, controles e loop principal
+src/characters/player-model.js  Avatar procedural com rig simples
+src/characters/enemy-factory.js Criação de inimigos de cada classe
+src/gameplay/enemy-ai.js        Perseguição, magias e duas fases do chefe
+src/gameplay/combat.js          Ataques, dano, animação de golpes e efeitos
+src/gameplay/projectiles.js     Disparo, impacto e descarte de projéteis
+src/gameplay/equipment.js       Estatísticas das armas
+src/world/shrine.js             Arena do guardião e avisos de ataque
+src/world/collisions.js         Índice espacial para obstáculos próximos
+src/world/terrain.js            Terreno procedural
+src/world/nature-assets.js      Malhas e materiais naturais reutilizáveis
+src/audio/sfx.js                Efeitos sonoros
+src/render/quality.js           Perfis low/medium/high
+src/ui/minimap.js               Minimapa com atualização de 10 Hz
+scripts/serve.ps1               Servidor local Windows
+scripts/dev-server.mjs          Servidor local Node.js
+.github/workflows/pages.yml     Teste e deploy automático no Pages
+tests/                         Regressão, estrutura e integração dos sistemas
+```
+
+### Melhorias da v0.6
+
+- **Modularização real:** seis sistemas grandes foram extraídos de `src/main.js` para
+  arquivos próprios, preservando os controles, campanha, lógica de XP e habilidades.
+- **Colisões:** novo índice espacial em células de 8 m consulta obstáculos próximos,
+  em vez de percorrer toda a floresta em cada movimento do personagem e dos inimigos.
+  Também é utilizado pelas magias para consultar possíveis obstáculos.
+- **IA:** passou para `enemy-ai.js` e evita copiar a lista inteira de inimigos a cada quadro.
+- **Responsabilidades isoladas:** construção de inimigos, avatar, arena, golpes e
+  projéteis podem evoluir sem alteração direta no loop principal.
+- **Testes:** 21 regressões históricas + 5 testes de módulos + 7 integrações diretas,
+  mais verificação estática dos imports. Executar `npm test`.
+- **Publicação:** módulos ES com caminhos relativos; funciona como site estático em
+  `usuario.github.io/repositorio/`, sem bundler ou dependências npm.
+
+**Validação:** os testes executam lógica real sem Three.js remoto. O teste visual/WebGL
+completo não foi concluído neste ambiente de execução; recomenda-se validar também
+em Chrome/Edge após publicar no GitHub Pages. Não há dados de FPS obtidos em hardware
+real, portanto nenhum ganho percentual de desempenho é prometido.
+
+**Pendência:** o loop de exploração e a montagem da vegetação permanecem em `src/main.js`;
+podem ser isolados em versões futuras. Ainda não existe sistema de salvamento.
 
 ## Controles
 
-| Comando | Ação |
-|---|---|
-| WASD / setas | Mover (direção relativa à câmera) |
-| Mouse | Olhar e orientar ataques |
-| Shift | Correr |
-| Espaço | Pular |
-| Clique esquerdo / J | Atacar com a arma equipada |
-| E | Golpe giratório, com recarga |
-| Q | Esquiva curta com janela de invulnerabilidade e recarga |
-| 1 / 2 / 3 | Alternar armas desbloqueadas |
-| Esc | Pausar e liberar o mouse |
+WASD/setas: mover • mouse: olhar • Shift: correr • Espaço: pular •
+clique/J: atacar • E: especial • Q: esquiva • 1/2/3: armas •
+Esc: pausar • F3: exibir FPS.
 
-## Campanha
+## Observações
 
-- **Capítulo 1: Fragmentos perdidos** — encontre 4 partes do violão; libera a **marreta reforçada**.
-- **Capítulo 2: A resistência** — vença 6 monstros acumulados; libera a **lança da floresta**.
-- **Capítulo 3: O guardião** — recupere 10 partes e derrote o guardião. As ruínas ficam a nordeste do acampamento (`x=32, z=-28`); acompanhe a **bússola** e o minimapa.
-
-O cabo de vassoura tem golpes rápidos; a marreta provoca mais dano; a lança alcança mais longe em um arco frontal estreito. XP aumenta sua vida máxima e, em níveis específicos, seu dano. Itens verdes curam; itens azuis aumentam a velocidade temporariamente.
-
-### Melhorias v0.4
-
-- **Personagem:** modelo com roupa, cinto, lenço, rosto, chapéu e esqueleto articulado por pivôs. Braços, pernas, cabeça e arma passam a se mover de forma integrada. Direção visual corresponde à direção real de ataque.
-- **Combate:** golpes frontais com arcos luminosos temporários e animação de arma sincronizada; mantidos especial e esquiva.
-- **Cenário:** ruínas com colunas, altar, círculo rúnico, núcleo animado e luz própria; geração de árvores/rochas respeita a arena e a criação dos itens respeita as colunas.
-- **Chefe:** aparece no altar, tem **duas fases** (fúria abaixo de 50% HP), movimento lateral, invocação única de reforços, orbes em leque, aviso de área antes do golpe e raios coerentes com o dano (3,7 m / 4,3 m); distância orientada pela bússola.
-- **Movimento inimigo:** pequena animação procedural sem necessidade de arquivos externos.
-
-## Testar código
-
-Necessita Node.js 18 ou superior para os testes de lógica:
-
-```bash
-node --check jogo.mjs   # opcional, extraia o módulo do index.html
-node testes.mjs         # 21 conjuntos de testes sem rede/WebGL
-```
-
-O pacote inclui apenas `index.html`, não um arquivo `jogo.mjs` pré-gerado. Para verificar a sintaxe do módulo, extraia o conteúdo entre `<script type="module">` e `</script>` para um arquivo `.mjs` temporário antes de executar `node --check`. O conjunto de testes verifica combate, movimentação, colisões, progressão, missões, dois estágios do chefe, raio de perigo, arco visual e estruturas da interface.
-
-**Limitação:** os testes Node validam lógica; não equivalem a uma sessão 3D real. O ambiente de desenvolvimento não possui acesso ao CDN necessário para reproduzir a cena completa. Teste os gráficos, câmera, colisões e desempenho em seu computador.
-
-## Publicação
-
-Para GitHub Pages, envie o conteúdo do ZIP jogável à raiz do repositório e habilite Pages em **Settings > Pages**. Como o jogo usa importmap e o arquivo `index.html`, não há compilação nem backend.
+- A biblioteca Three.js continua vindo do CDN fixado em `0.160.0`;
+  a hospedagem GitHub Pages é estática, sem backend e sem compilação.
+- A v0.6 **não tem salvamento de progresso**: fechar a aba reinicia a campanha.
+- Scripts de teste conferem lógica e estrutura, mas não substituem um teste
+  completo do WebGL com a biblioteca carregada em um navegador real.

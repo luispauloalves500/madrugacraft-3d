@@ -1,0 +1,124 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            overflow: hidden;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #000;
+            color: #fff;
+            user-select: none;
+        }
+        #hud {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 20px;
+            pointer-events: none;
+            z-index: 10;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.6), transparent);
+        }
+        #left-hud, #right-hud { display: flex; flex-direction: column; gap: 6px; }
+        .bar-container {
+            width: 180px;
+            height: 18px;
+            background: rgba(0,0,0,0.6);
+            border: 2px solid #444;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .bar { height: 100%; transition: width 0.2s; }
+        #health-bar { background: linear-gradient(90deg, #c0392b, #e74c3c); width: 100%; }
+        #score-display, #wave-display, #boost-display {
+            font-size: 18px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px #000;
+        }
+        #score-display { color: #f1c40f; }
+        #boost-display { color: #00d4ff; font-size: 14px; }
+        #instructions {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            text-align: center;
+            z-index: 10;
+            pointer-events: none;
+        }
+        #overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.85);
+            z-index: 100;
+            text-align: center;
+        }
+        #overlay h1 { font-size: 48px; color: #f1c40f; margin-bottom: 10px; text-shadow: 3px 3px 0 #000; }
+        #overlay p { font-size: 18px; margin: 8px 0; max-width: 520px; }
+        #start-btn, #restart-btn {
+            margin-top: 20px;
+            padding: 14px 40px;
+            font-size: 20px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            pointer-events: auto;
+        }
+        #start-btn:hover, #restart-btn:hover { background: #c0392b; }
+        #minimap {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 140px;
+            height: 140px;
+            background: rgba(0,0,0,0.6);
+            border: 2px solid #555;
+            border-radius: 8px;
+            z-index: 10;
+        }
+        #damage-flash {
+            position: absolute;
+            inset: 0;
+            background: rgba(255,0,0,0.3);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.15s;
+            z-index: 5;
+        }
+        #hud { align-items: flex-start; }
+        #xp-container { width: 180px; height: 9px; background: #142234; border: 1px solid #5f6d81; border-radius: 9px; overflow: hidden; }
+        #xp-bar { width: 0%; height: 100%; background: linear-gradient(90deg, #5c7df4, #98c8ff); }
+        #level-display, #ability-display { font-size: 13px; color: #d7eaff; text-shadow: 1px 1px 3px #000; }
+        #ability-display.ready { color: #ffeb8e; }
+        #crosshair { position: absolute; left: 50%; top: 46%; width: 7px; height: 7px; border: 1px solid #fff; border-radius: 50%; transform: translate(-50%,-50%); pointer-events: none; opacity: 0.75; z-index: 4; }
+        #pause-menu { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:16px; z-index:110; background:rgba(8,15,25,.84); text-align:center; }
+        #pause-menu h2 { font-size: clamp(26px, 5vw, 44px); color:#ffdb69; }
+        #resume-btn { padding:13px 30px; border:0; border-radius:8px; color:white; font-size:18px; background:#246e9a; cursor:pointer; }
+        #toast { position:absolute; top:24%; left:50%; transform:translateX(-50%); z-index:20; color:#ffedab; font-size:clamp(18px,3vw,29px); text-shadow:2px 2px 3px #000; pointer-events:none; opacity:0; transition:opacity .2s; text-align:center; }
+        #instructions { max-width:calc(100vw - 20px); line-height:1.5; }
+        #campaign-hud { position:absolute;top:88px;right:20px;z-index:10;min-width:210px;max-width:300px;
+            background:rgba(11,25,22,.82);border:1px solid #7c9266;border-radius:12px;padding:12px 15px;
+            pointer-events:none;box-shadow:0 8px 22px rgba(0,0,0,.25); }
+        #campaign-hud h3 {color:#ffe0a0;font-size:13px;letter-spacing:.09em;text-transform:uppercase;margin-bottom:5px;}
+        #mission-title {font-size:15px;font-weight:700;color:#fff4c5;margin-bottom:4px;}
+        #mission-goal {font-size:13px;color:#cfe6d0;line-height:1.4;}
+        #equipment-display {font-size:12px;color:#a8f4ff;line-height:1.5;margin-top:8px;}
+        #dodge-display {font-size:12px;color:#dae2ff;}
+        #boss-bar-wrapper {position:absolute;bottom:94px;left:50%;transform:translateX(-50%);width:min(460px,80vw);
+            z-index:10;text-align:center;color:#ffe1cb;font-weight:700;text-shadow:1px 1px 3px #000;pointer-events:none;}
+        #boss-bar-outer {height:14px;margin-top:6px;border:2px solid #d49c79;background:#281114;border-radius:15px;overflow:hidden;}
+        #boss-bar {height:100%;width:100%;background:linear-gradient(90deg,#ad2932,#fd8755);transition:width .12s;}
+        #target-hint {color:#ffe9a1;font-weight:bold;font-size:12px;text-shadow:1px 1px 2px #000;}
+        @media(max-width:700px){#campaign-hud{top:auto;bottom:175px;left:10px;right:auto;min-width:0;max-width:190px;padding:8px;}#campaign-hud h3{font-size:11px;}#mission-title{font-size:12px;}#mission-goal,#equipment-display{font-size:11px;}#boss-bar-wrapper{bottom:54px;} }
+        @media(max-width:700px) { #hud{padding:10px;} #minimap{width:105px;height:105px;bottom:80px;right:10px;} #instructions{font-size:11px;bottom:8px;padding:7px;} .bar-container,#xp-container{width:132px;} #score-display,#wave-display{font-size:14px;} #left-hud,#right-hud{gap:4px;} #overlay h1{font-size:35px;} }
+        .hidden { display: none !important; }
+
+#fps-display {position:absolute;left:16px;bottom:16px;padding:6px 9px;background:rgba(0,0,0,.65);z-index:20;border-radius:5px;font:12px/1.4 monospace;color:#adffb3;pointer-events:none}
