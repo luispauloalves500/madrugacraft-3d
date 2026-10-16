@@ -1,3 +1,5 @@
+import {animateEnemy} from '../characters/enemy-animation.js';
+
 // Atualização de IA independente da renderização e dos controles.
 export function createEnemyAI({enemies,player,getGroundHeight,resolveCollision,
   showBossTelegraph,hideBossTelegraph,damagePlayer,spawnParticle,throwProjectile,sfx,isGameActive}) {
@@ -13,7 +15,8 @@ function update(dt,elapsed){
             const shaman=enemy.type==='shaman', boss=enemy.type==='boss';
             const meleeRadius=boss?2.65:1.85;
             const wantsToMove=shaman?dist>9.5:boss?dist>4.1:dist>meleeRadius*.8;
-            if (wantsToMove && dist<52 && enemy.knockback===0 && enemy.windup===0) {
+            const moving=wantsToMove && dist<52 && enemy.knockback===0 && enemy.windup===0;
+            if (moving) {
                 const nx=dx/(dist||1),nz=dz/(dist||1);
                 // Guardião contorna o alvo ao se aproximar: mais de uma rota.
                 const orbit=boss && dist<12?enemy.strafe*(enemy.enraged?.48:.27):0;
@@ -33,6 +36,7 @@ function update(dt,elapsed){
             mesh.scale.y=1+Math.sin(elapsed*(boss?3.2:7.4)+mesh.id)*(boss?.024:.055);
             mesh.rotation.z=Math.sin(elapsed*(boss?2.2:4.1)+mesh.id)*(boss?.018:.048);
             if (dist<52) mesh.lookAt(player.position.x,mesh.position.y,player.position.z);
+            animateEnemy(enemy,elapsed,moving);
             if (boss && enemy.windup>0) {
                 enemy.windup=Math.max(0,enemy.windup-dt);
                 showBossTelegraph(enemy);

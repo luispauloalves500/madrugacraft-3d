@@ -13,7 +13,8 @@ const script = [
   'src/gameplay/equipment.js', 'src/characters/player-model.js',
   'src/characters/enemy-factory.js','src/gameplay/enemy-ai.js',
   'src/gameplay/projectiles.js','src/gameplay/combat.js','src/world/shrine.js',
-  'src/world/collisions.js'
+  'src/world/collisions.js','src/world/forest.js','src/world/random.js',
+  'src/gameplay/save-system.js'
 ].map(path => readFileSync(new URL('../'+path, import.meta.url),'utf8')).join('\n');
 assert.ok(script, 'Arquivos JS não encontrados');
 const fnNames = ['getGroundHeight', 'resolveCollision', 'isPositionFree',
@@ -189,7 +190,7 @@ check('pivôs do personagem mantêm membros e arma conectados',()=>{
 });
 check('arena do guardião possui espaço reservado sem obstáculos aleatórios',()=>{
  assert.ok(script.includes('Math.hypot(x-shrinePosition.x,z-shrinePosition.z)>10'));
- assert.ok(script.includes('createShrine()'));
+ assert.ok(script.includes('shrine.create()'));
  assert.ok(script.includes('const spot = type === \'boss\' ? shrinePosition'));
  assert.ok(script.includes('addCollider({x:x+px,z:z+pz,radius:.65})'));
 });
@@ -246,7 +247,7 @@ check('efeitos de ataque são descartados após expirar',()=>{
  assert.ok(script.includes('shrineCore.rotation.y+=dt*.82'));
 });
 check('interface apresenta versão e segunda fase do guardião',()=>{
- assert.ok(html.includes('EDIÇÃO v0.6'));
+ assert.ok(html.includes('EDIÇÃO v0.8'));
  assert.ok(html.includes('id="boss-name"'));
  assert.ok(script.includes('Guardião da Floresta · Fase 2 · Fúria'));
 });

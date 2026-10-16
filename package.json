@@ -1,12 +1,12 @@
 {
   "name": "madrugacraft-3d",
   "private": true,
-  "version": "0.6.0",
+  "version": "0.8.0",
   "type": "module",
   "scripts": {
     "dev": "node scripts/dev-server.mjs",
-    "test": "node tests/regression.mjs && node tests/structure.mjs && node tests/modules.mjs && node tests/systems.mjs",
-    "check": "node --check src/main.js && node --check src/gameplay/combat.js && node --check src/gameplay/enemy-ai.js && node --check src/world/collisions.js"
+    "test": "node tests/regression.mjs && node tests/structure.mjs && node tests/modules.mjs && node tests/systems.mjs && node tests/save.mjs && node tests/forest.mjs && node tests/visual-systems.mjs",
+    "check": "node --check src/main.js && node --check src/gameplay/combat.js && node --check src/gameplay/enemy-ai.js && node --check src/world/collisions.js && node --check src/world/forest.js && node --check src/gameplay/save-system.js && node --check src/render/camera-rig.js && node --check src/render/visibility.js && node --check src/characters/enemy-animation.js && node --check src/characters/enemy-factory.js"
   },
   "engines": {
     "node": ">=18"

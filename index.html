@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MadrugaCraft 3D — Aventura RPG v0.6</title>
+    <title>MadrugaCraft 3D — Aventura RPG v0.8</title>
     <link rel="stylesheet" href="./styles/main.css">
 </head>
 <body>
@@ -36,14 +36,14 @@
         <div id="boss-bar-outer"><div id="boss-bar"></div></div>
     </div>
     <div id="instructions">
-        <strong>WASD</strong> Mover · <strong>Mouse</strong> Olhar · <strong>Clique/J</strong> Atacar · <strong>E</strong> Especial · <strong>Q</strong> Esquivar · <strong>1/2/3</strong> Armas · <strong>Espaço</strong> Pular · <strong>Shift</strong> Correr · <strong>Esc</strong> Pausar · <strong>F3</strong> FPS
+        <strong>WASD</strong> Mover · <strong>Mouse</strong> Olhar · <strong>Scroll</strong> Zoom · <strong>Clique/J</strong> Atacar · <strong>E</strong> Especial · <strong>Q</strong> Esquivar · <strong>1/2/3</strong> Armas · <strong>Espaço</strong> Pular · <strong>Shift</strong> Correr · <strong>Esc</strong> Pausar · <strong>P</strong> Salvar · <strong>F3</strong> FPS
     </div>
     <canvas id="minimap" aria-label="Minimapa da floresta"></canvas>
     <div id="crosshair" aria-hidden="true"></div>
     <div id="toast" aria-live="polite"></div>
-    <div id="pause-menu" class="hidden"><h2>Jogo pausado</h2><p>Seus inimigos vão esperar você voltar.</p><button id="resume-btn">Continuar aventura</button><p>Esc libera o mouse e pausa o jogo</p></div>
+    <div id="pause-menu" class="hidden"><h2>Jogo pausado</h2><p>Seus inimigos vão esperar você voltar.</p><button id="resume-btn">Continuar aventura</button><button id="save-btn" class="secondary-btn">💾 Salvar progresso</button><p>Esc libera o mouse e pausa o jogo</p></div>
     <div id="overlay">
-        <h1>🎸 MadrugaCraft 3D</h1><p style="color:#aef2d9;font-size:13px;letter-spacing:.12em;">AVENTURA RPG · EDIÇÃO v0.6</p>
+        <h1>🎸 MadrugaCraft 3D</h1><p style="color:#aef2d9;font-size:13px;letter-spacing:.12em;">AVENTURA RPG · EDIÇÃO v0.8</p>
         <p>Seu Madruga precisa recuperar os pedaços do violão na floresta infestada de monstros!</p>
         <p>Complete 3 capítulos: encontre peças, explore as ruínas antigas, derrote monstros e enfrente o guardião final. Desbloqueie novas armas, evolua de nível e use <strong>Q</strong> para esquivar.</p>
         <div style="margin: 15px 0; display: flex; gap: 10px; justify-content: center; pointer-events: auto;">
@@ -51,7 +51,8 @@
             <button id="gfx-med" class="gfx-btn" style="padding:8px 16px; background:#e74c3c; border:none; border-radius:6px; color:#fff; cursor:pointer;">Médio</button>
             <button id="gfx-high" class="gfx-btn" style="padding:8px 16px; background:#555; border:none; border-radius:6px; color:#fff; cursor:pointer;">Alto</button>
         </div>
-        <button id="start-btn">Começar Aventura</button>
+        <button id="start-btn">Nova aventura</button>
+        <button id="load-btn" class="secondary-btn hidden">Continuar partida salva</button>
     </div>
     <div id="gameover" class="hidden" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,0.9);z-index:200;">
         <h1 id="go-title" style="font-size:42px;color:#e74c3c;">Game Over</h1>

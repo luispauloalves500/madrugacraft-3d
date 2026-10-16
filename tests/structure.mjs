@@ -1,4 +1,4 @@
-import {readFileSync,existsSync} from 'node:fs';
+import {readFileSync,existsSync,readdirSync} from 'node:fs';
 import {resolve,dirname} from 'node:path';
 import assert from 'node:assert/strict';
 import {fileURLToPath} from 'node:url';
@@ -12,13 +12,14 @@ assert.ok(!html.includes('<script type="module">'),'Jogo principal não pode est
 assert.ok(html.length < 10000,`index.html longo demais: ${html.length}`);
 assert.match(html, /"three": "https:\/\/cdn\.jsdelivr\.net\/npm\/three@0\.160\.0\/build\/three\.module\.js"/);
 let count=0;
-for (const [from,code] of [['src/main.js',main],
-    ...['src/audio/sfx.js','src/render/quality.js','src/world/nature-assets.js',
-    'src/world/terrain.js','src/ui/minimap.js','src/gameplay/equipment.js',
-    'src/characters/player-model.js','src/characters/enemy-factory.js',
-    'src/gameplay/enemy-ai.js','src/gameplay/combat.js','src/gameplay/projectiles.js','src/world/shrine.js',
-    'src/world/collisions.js']
-      .map(path=>[path,load(path)])]) {
+function listJs(dir) {
+  return readdirSync(resolve(root,dir),{withFileTypes:true}).flatMap(entry=> {
+    const path=`${dir}/${entry.name}`;
+    return entry.isDirectory()?listJs(path):entry.name.endsWith('.js')?[path]:[];
+  });
+}
+for (const from of listJs('src')) {
+  const code=load(from);
   for (const [,rel] of code.matchAll(/from ['"](\.[^'"]+)['"]/g)) {
     assert.ok(existsSync(resolve(root,dirname(from),rel)),`Import quebrado: ${from} -> ${rel}`);
     count++;

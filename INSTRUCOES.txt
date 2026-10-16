@@ -1,10 +1,17 @@
-MADRUGACRAFT 3D v0.6
+MADRUGACRAFT 3D v0.8
 
-1. Extraia todo o ZIP.
+1. Extraia TODO o ZIP.
 2. Execute INICIAR-JOGO.bat no Windows.
-3. O jogo abre no navegador pelo endereco http://127.0.0.1:8765/.
+3. O jogo abre no navegador usando o servidor HTTP local.
 4. Mantenha a janela do servidor aberta. Ctrl+C para encerrar.
-5. O Three.js e carregado do CDN: e necessaria internet.
+5. O Three.js e carregado pela internet a partir do CDN jsDelivr.
+
+CONTROLES: WASD movimento, mouse camera, scroll zoom, clique/J ataque, E especial,
+Q esquiva, Shift correr, Espaco pular, 1-3 armas, P salvar, Esc pausa.
+
+SALVAR: automatico a cada 15 s ativos, ao pausar e fechar a pagina.
+Na tela inicial use 'Continuar partida salva' para restaurar o checkpoint.
+O progresso fica apenas no navegador e na origem em que voce jogou.
 
 GITHUB PAGES: Leia README.md para configurar a publicacao.
-NAO abra index.html diretamente (file:// bloqueia importacao de modulos).
+NAO abra index.html diretamente com file://.
